@@ -1,0 +1,1 @@
+# asyncapi-contract-sample
