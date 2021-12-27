@@ -1,0 +1,180 @@
+asyncapi: 2.2.0
+info:
+  title: DaWaPack AsyncAPI sample infrastructure definitions
+  version: 0.1.0
+  description: This sample data below shows the DaWaPack PHP-AMQP-Daemon infrastructure definitions
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  development:
+    url: rabbitmq
+    description: Development server
+    protocol: amqp
+    protocolVersion: 0.9.1
+    security:
+      - user_pass: []
+defaultContentType: application/json
+channels:
+  rpc/outbound/commands:
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: DaWaPack.DX.RpcCommands
+          type: direct
+          durable: false
+          autoDelete: false
+          vhost: /
+    publish:
+      bindings:
+        amqp:
+          cc: [ '#any' ]
+          deliveryMode: 2
+          replyTo: '#any'
+          mandatory: false
+      message:
+        name: AnyRpcOutboundCommandMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  outbound/commands:
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: DaWaPack.DX.Commands
+          type: direct
+          durable: false
+          autoDelete: false
+          vhost: /
+    publish:
+      bindings:
+        amqp:
+          cc: [ '#any' ]
+          deliveryMode: 2
+          mandatory: false
+      message:
+        name: AnyOutboundCommandMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  inbound/commands:
+    bindings:
+      amqp:
+        is: queue
+        queue:
+          name: DaWaPack.Q.Commands
+          durable: false
+          exclusive: false
+          autoDelete: false
+          vhost: /
+    subscribe:
+      bindings:
+        amqp:
+          cc: [
+            'DaWaPack.DX.RpcCommands|DaWaPack.RK.CommandLoopback',
+            'DaWaPack.DX.Commands|DaWaPack.RK.CommandFireAndForget'
+          ]
+          ack: true
+      message:
+        name: AnyInboundCommandMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  outbound/responses:
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: DaWaPack.DX.Responses
+          type: direct
+          durable: false
+          autoDelete: false
+          vhost: /
+    publish:
+      bindings:
+        amqp:
+          cc: [ '#any' ]
+          deliveryMode: 2
+          mandatory: false
+      message:
+        name: AnyOutboundResponseMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  inbound/responses:
+    bindings:
+      amqp:
+        is: queue
+        queue:
+          name: DaWaPack.Q.Responses
+          durable: false
+          exclusive: false
+          autoDelete: false
+          vhost: /
+    subscribe:
+      bindings:
+        amqp:
+          cc: [
+            'DaWaPack.DX.Responses|DaWaPack.RK.ResponseLoopback'
+          ]
+          ack: true
+      message:
+        name: AnyInboundResponseMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  outbound/events:
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: DaWaPack.FX.Events
+          type: fanout
+          durable: false
+          autoDelete: false
+          vhost: /
+    publish:
+      bindings:
+        amqp:
+          deliveryMode: 2
+          mandatory: false
+      message:
+        name: AnyOutboundEventMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+  inbound/events:
+    bindings:
+      amqp:
+        is: queue
+        queue:
+          name: DaWaPack.Q.Events
+          durable: false
+          exclusive: false
+          autoDelete: false
+          vhost: /
+    subscribe:
+      bindings:
+        amqp:
+          cc: [
+            'DaWaPack.FX.Events|DaWaPack.RK.EventLoopback'
+          ]
+          ack: true
+      message:
+        name: AnyInboundEventMessage
+        bindings:
+          amqp:
+            contentEncoding: UTF-8
+            messageType: '#any'
+components:
+  securitySchemes:
+    user_pass:
+      type: userPassword
