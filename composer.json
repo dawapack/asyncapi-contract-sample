@@ -1,0 +1,8 @@
+{
+  "name": "dawapack/asyncapi-contract-sample",
+  "description": "DaWaPack AsyncAPI Sample contract specifications and infrastructure definitions",
+  "license": "Apache License 2.0",
+  "type": "library",
+  "require": {
+  }
+}
